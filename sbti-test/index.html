@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>SBTI · 人格逻辑算法模拟器 | 全维度备注系统</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', 'Noto Sans', system-ui, sans-serif;
+            background: #eef2f7;
+            padding: 24px 20px;
+            margin: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 28px;
+            justify-content: center;
+        }
+
+        .panel {
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.02);
+            padding: 24px 26px;
+            transition: all 0.2s;
+        }
+
+        .controls {
+            flex: 1.2;
+            min-width: 320px;
+            max-width: 780px;
+        }
+
+        .display {
+            flex: 0.9;
+            min-width: 320px;
+            position: sticky;
+            top: 24px;
+            height: fit-content;
+            background: linear-gradient(145deg, #ffffff 0%, #fefefe 100%);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            font-size: 1.6rem;
+            color: #1a2c3e;
+            letter-spacing: -0.2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h2 small {
+            font-size: 0.8rem;
+            font-weight: normal;
+            background: #eef2fa;
+            padding: 2px 10px;
+            border-radius: 40px;
+            color: #2c5f8a;
+        }
+
+        .dim-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 14px;
+            margin: 20px 0 20px 0;
+        }
+
+        .dim-card {
+            background: #f9fafc;
+            border-radius: 20px;
+            border: 1px solid #e4e9f0;
+            padding: 12px 14px;
+            transition: all 0.15s;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+        }
+
+        .dim-card:hover {
+            border-color: #cbdde9;
+            background: #ffffff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+        }
+
+        .dim-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+            gap: 6px;
+        }
+
+        .dim-code {
+            font-weight: 800;
+            font-size: 1.1rem;
+            background: #eef2ff;
+            padding: 2px 8px;
+            border-radius: 30px;
+            color: #1f4e7a;
+            font-family: monospace;
+        }
+
+        .dim-name {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #3b5e7e;
+            background: #eef2fa;
+            padding: 2px 8px;
+            border-radius: 30px;
+        }
+
+        .dim-model {
+            font-size: 0.68rem;
+            background: #eaeef5;
+            padding: 2px 8px;
+            border-radius: 30px;
+            color: #5f6c80;
+        }
+
+        .dim-desc-note {
+            font-size: 0.7rem;
+            color: #5f6c84;
+            margin: 6px 0 8px 0;
+            padding-left: 4px;
+            border-left: 2px solid #bdd3e8;
+        }
+
+        select {
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 40px;
+            border: 1px solid #cfdee9;
+            background: white;
+            font-weight: 500;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.1s;
+            outline: none;
+        }
+
+        select:focus {
+            border-color: #2c7cb6;
+            box-shadow: 0 0 0 2px rgba(44, 124, 182, 0.2);
+        }
+
+        .special-trigger {
+            background: #fef5e7;
+            padding: 12px 18px;
+            border-radius: 32px;
+            margin-bottom: 22px;
+            border: 1px solid #ffe0a3;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+
+        .special-trigger label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .result-box {
+            text-align: center;
+            padding: 18px 20px 24px;
+        }
+
+        .mode-badge {
+            background: #eef2f9;
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #2c5f8a;
+        }
+
+        .type-name {
+            font-size: 2.4rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: #c0392b;
+            margin: 14px 0 6px;
+            word-break: break-word;
+        }
+
+        .badge-match {
+            background: #27ae60;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 60px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .desc {
+            text-align: left;
+            background: #f8fafd;
+            padding: 16px 18px;
+            border-radius: 24px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #2c3e4e;
+            border: 1px solid #e6edf4;
+        }
+
+        hr {
+            margin: 12px 0;
+            border: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #cbdde9, transparent);
+        }
+
+        footer {
+            font-size: 0.7rem;
+            text-align: center;
+            color: #8ba0b0;
+            margin-top: 12px;
+        }
+
+        @media (max-width: 760px) {
+            body {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .display {
+                position: relative;
+                top: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="panel controls">
+        <h2>📐 SBTI · 全维备注系统 <small>15 factors</small></h2>
+        <div class="special-trigger">
+            <label>
+                <input type="checkbox" id="drunk_toggle"> 🍾 开启「酒精异常因子」→ 强制触发「酒鬼人格」
+            </label>
+            <span style="font-size:0.7rem; color:#a5722b;">🍷 隐藏彩蛋模式</span>
+        </div>
+        <div id="dim_inputs" class="dim-grid"></div>
+        <div style="font-size:0.7rem; text-align:right; color:#8eacc0;">※ 每个维度均配备模型+备注说明</div>
+    </div>
+
+    <div class="panel display">
+        <h2>🧠 实时人格判定</h2>
+        <div class="result-box">
+            <div id="mode_kicker" class="mode-badge">🌀 分析中</div>
+            <div id="result_name" class="type-name">——</div>
+            <div><span id="match_badge" class="badge-match">匹配度 ——</span></div>
+            <div id="result_desc" class="desc"></div>
+        </div>
+        <footer>基于15维逻辑映射 | 动态欧氏匹配 + 优先级规则</footer>
+    </div>
+
+    <script>
+        // --------------------------------------------------------------
+        // 1. 备注系统完整数据 (按照需求 S1 ~ So3 全部备注)
+        // --------------------------------------------------------------
+        const DIMENSION_META = {
+            S1: { name: 'S1 自尊自信', model: '自我模型', note: '核心自我价值感知，影响抗压与主动性' },
+            S2: { name: 'S2 自我清晰度', model: '自我模型', note: '对自身需求、目标的明确程度' },
+            S3: { name: 'S3 核心价值', model: '自我模型', note: '内在信念与道德框架的稳定性' },
+            E1: { name: 'E1 依恋安全感', model: '情感模型', note: '对关系稳定性的信任程度' },
+            E2: { name: 'E2 情感投入度', model: '情感模型', note: '在关系中的热情与共情深度' },
+            E3: { name: 'E3 边界与依赖', model: '情感模型', note: '亲密关系中的边界感与适度依赖' },
+            A1: { name: 'A1 世界观倾向', model: '态度模型', note: '对世界本质的乐观/谨慎倾向' },
+            A2: { name: 'A2 规则与灵活度', model: '态度模型', note: '对规则遵循 vs 弹性变通的态度' },
+            A3: { name: 'A3 人生意义感', model: '态度模型', note: '存在感与目标导向的强度' },
+            Ac1: { name: 'Ac1 动机导向', model: '行动驱力模型', note: '成就驱动/安全驱动/关系驱动倾向' },
+            Ac2: { name: 'Ac2 决策风格', model: '行动驱力模型', note: '理性分析 vs 直觉决断 vs 群体参考' },
+            Ac3: { name: 'Ac3 执行模式', model: '行动驱力模型', note: '计划型/弹性型/冲动型执行力' },
+            So1: { name: 'So1 社交主动性', model: '社交模型', note: '社交场景中的发起与主导倾向' },
+            So2: { name: 'So2 人际边界感', model: '社交模型', note: '对他人距离的敏锐度与保护意识' },
+            So3: { name: 'So3 表达与真实度', model: '社交模型', note: '自我表露程度与内外一致性' }
+        };
+
+        // 维度顺序 (严格15项)
+        const dimensionOrder = ['S1', 'S2', 'S3', 'E1', 'E2', 'E3', 'A1', 'A2', 'A3', 'Ac1', 'Ac2', 'Ac3', 'So1', 'So2', 'So3'];
+
+        // 人格库定义 (基于需求扩展，保持经典5原型 + 酒鬼+傻乐+备用)
+        const TYPE_LIBRARY = {
+            "CTRL": { cn: "拿捏者", desc: "你是宇宙熵增定律的天然反抗者！行走的人形自走任务管理器，规则在你这里只是出厂的基础参数设置。擅长预判与调度，冷静而精密。" },
+            "BOSS": { cn: "领导者", desc: "手里永远拿着方向盘的人。效率是你的信仰，秩序是你的呼吸。你说这太卷了，他会用一种看弱鸡的眼神看着你。天生决策者，掌控全局。" },
+            "Dior-s": { cn: "屌丝", desc: "Diogenes' Original Realist - sage。你是对当代消费主义陷阱和成功学PUA最彻底的蔑视。清醒、极简，活在自己的真实尺度里。" },
+            "FAKE": { cn: "伪人", desc: "面具切换比输入法还快。你以为交到了真心朋友？醒醒。面具下空得很，正是这些面具构成了你自己。社交变色龙，适应力极强。" },
+            "JOKE-R": { cn: "小丑", desc: "你打开一层，是个笑话；再打开一层，是个段子……最里面是空的，只剩下微弱的回声说：哈，没想到吧。用最大的笑声，盖住心碎的声音。幽默是盾牌。" },
+            "HHHH": { cn: "傻乐者", desc: "哈哈哈哈哈哈！对不起，这就是全部特质了。你的脑回路过于清奇，标准人格库已全面崩溃。快乐就完事了，烦恼自动过滤。" },
+            "DRUNK": { cn: "酒鬼", desc: "体内流淌的是五粮液！是国窖1573！你习惯了将白酒灌入保温杯，它是你通往夜场诗人的门票。醉眼看人间，个个都温柔。" }
+        };
+
+        // 标准模式库 (pattern 使用 H/M/L 编码，基于你的原始逻辑升级)
+        // 注: 使用连字符格式更清晰 15个字母 H/M/L
+        const NORMAL_TYPES = [
+            { code: "CTRL", pattern: "HHH-HMH-MHH-HHH-MHM" },   // 高自我+中情感+高态度+高行动+中社交
+            { code: "BOSS", pattern: "HHH-HMH-MMH-HHH-LHL" },
+            { code: "Dior-s", pattern: "MHM-MMH-MHM-HMH-LHL" },
+            { code: "FAKE", pattern: "HLM-MML-MLM-MLM-HLH" },
+            { code: "JOKE-R", pattern: "LLH-LHL-LML-LLL-MLM" }
+        ];
+
+        // 辅助映射
+        const levelMap = { 'L': 1, 'M': 2, 'H': 3 };
+
+        // 将pattern字符串(带-或直接)转为数值数组
+        function patternToVector(patternStr) {
+            const cleaned = patternStr.replace(/-/g, '');
+            if (cleaned.length !== 15) {
+                console.warn("pattern长度不对", patternStr);
+                return Array(15).fill(2);
+            }
+            return cleaned.split('').map(ch => levelMap[ch] || 2);
+        }
+
+        // 计算欧氏距离+匹配度 (距离越小越好, 最大距离 30 -> 0~100%)
+        function calcSimilarity(userVec, targetVec) {
+            let distance = 0;
+            let exactMatch = 0;
+            for (let i = 0; i < 15; i++) {
+                const diff = Math.abs(userVec[i] - targetVec[i]);
+                distance += diff;
+                if (diff === 0) exactMatch++;
+            }
+            // 最大理论距离 = 每个维度最多差2 => 2*15=30
+            let similarity = Math.max(0, Math.round((1 - distance / 30) * 100));
+            return { distance, exactMatch, similarity };
+        }
+
+        // 实时核心判定
+        function computePersonality(userVector, isDrunk) {
+            // 1. 酒精强制命中
+            if (isDrunk) {
+                return {
+                    finalType: "DRUNK",
+                    mode: "🍻 隐藏人格·乙醇接管",
+                    badge: "醉意值 100% · 酒神附体",
+                    similarityRaw: 100,
+                    exactHit: 15
+                };
+            }
+
+            // 2. 对正常人格库进行匹配排序
+            let ranked = NORMAL_TYPES.map(type => {
+                const targetVec = patternToVector(type.pattern);
+                const { distance, exactMatch, similarity } = calcSimilarity(userVector, targetVec);
+                return {
+                    code: type.code,
+                    distance,
+                    exact: exactMatch,
+                    similarity
+                };
+            }).sort((a, b) => {
+                if (a.distance !== b.distance) return a.distance - b.distance;
+                return b.exact - a.exact; // 精确命中高优先
+            });
+
+            const best = ranked[0];
+            // 如果最高匹配度低于60% -> 触发傻乐者 (HHHH)
+            if (best.similarity < 60) {
+                return {
+                    finalType: "HHHH",
+                    mode: "⚠️ 系统兜底·混沌区域",
+                    badge: `匹配度仅 ${best.similarity}% · 常规人格失效`,
+                    similarityRaw: best.similarity,
+                    exactHit: best.exact
+                };
+            } else {
+                return {
+                    finalType: best.code,
+                    mode: "🎯 主人格判定 · 逻辑匹配",
+                    badge: `匹配度 ${best.similarity}% · 精准命中 ${best.exact}/15 维`,
+                    similarityRaw: best.similarity,
+                    exactHit: best.exact
+                };
+            }
+        }
+
+        // 获取当前用户选择的数值数组
+        function getUserVector() {
+            const selects = document.querySelectorAll('.dim-select');
+            return Array.from(selects).map(sel => parseInt(sel.value, 10));
+        }
+
+        // 渲染所有带备注的维度卡片 (核心备注嵌入)
+        function renderDimensionPanels() {
+            const container = document.getElementById('dim_inputs');
+            if (!container) return;
+            container.innerHTML = '';
+            dimensionOrder.forEach(dim => {
+                const meta = DIMENSION_META[dim];
+                if (!meta) return;
+                const card = document.createElement('div');
+                card.className = 'dim-card';
+                // 构建漂亮的备注区域：显示名称+模型+额外短备注
+                card.innerHTML = `
+                <div class="dim-header">
+                    <span class="dim-code">${dim}</span>
+                    <span class="dim-name">${meta.name}</span>
+                    <span class="dim-model">📌 ${meta.model}</span>
+                </div>
+                <div class="dim-desc-note">✍️ ${meta.note}</div>
+                <select class="dim-select" data-dim="${dim}">
+                    <option value="1">L (低) · 倾向弱</option>
+                    <option value="2" selected>M (中) · 平衡态</option>
+                    <option value="3">H (高) · 倾向强</option>
+                </select>
+            `;
+                container.appendChild(card);
+            });
+            // 绑定change事件
+            document.querySelectorAll('.dim-select').forEach(sel => {
+                sel.addEventListener('change', updateUI);
+            });
+        }
+
+        // 更新界面全部信息 (包括备注联动，并显示最佳匹配等)
+        function updateUI() {
+            const isDrunk = document.getElementById('drunk_toggle').checked;
+            const userVec = getUserVector();
+            const result = computePersonality(userVec, isDrunk);
+
+            // 获取人格详细数据
+            const typeData = TYPE_LIBRARY[result.finalType] || { cn: "未知", desc: "这个人格尚未录入深度描述，但算法已经捕捉到你的特质。" };
+
+            // 特殊增强：如果是酒鬼且展示额外描述彩蛋
+            let finalDesc = typeData.desc;
+            if (result.finalType === "DRUNK") {
+                finalDesc = "🍺 " + finalDesc + " 此时逻辑让位于情绪，你选择的维度被酒精因子完全覆盖——今夜不设防。";
+            } else if (result.finalType === "HHHH" && result.similarityRaw < 60) {
+                finalDesc = "🤪 " + finalDesc + " （由于维度组合极度稀有或矛盾，系统无法归类，自动解锁傻乐保护协议）";
+            }
+
+            // 显示区域DOM更新
+            const modeElem = document.getElementById('mode_kicker');
+            const nameElem = document.getElementById('result_name');
+            const badgeElem = document.getElementById('match_badge');
+            const descElem = document.getElementById('result_desc');
+
+            if (modeElem) modeElem.textContent = result.mode;
+            if (nameElem) nameElem.textContent = `${result.finalType}（${typeData.cn}）`;
+            if (badgeElem) badgeElem.textContent = result.badge;
+            if (descElem) descElem.innerHTML = `<strong>✨ 人格精析</strong><br>${finalDesc}`;
+
+            // 附加: 在控制台可以输出当前向量以供调试 (非必须但优雅)
+            // 可选显示一个小尾巴备注调试图（但无侵入）
+            const metaOut = document.querySelector('.display footer');
+            if (metaOut && !metaOut.hasAttribute('data-logged')) {
+                // 只是为了友好，不做频繁输出
+            }
+        }
+
+        // 监听酒精checkbox及全局事件
+        function bindEvents() {
+            const drunkCheck = document.getElementById('drunk_toggle');
+            if (drunkCheck) {
+                drunkCheck.addEventListener('change', updateUI);
+            }
+            // 由于动态生成的select已经各自绑定了updateUI, 这里只需要额外确保全局无遗漏
+        }
+
+        // 初始化所有内容 + 默认备注展示
+        function init() {
+            renderDimensionPanels();   // 生成15个带全部备注（S1~So3模型&注释）
+            bindEvents();
+            // 初次计算默认选中为中值 (2,2,2...)，展示匹配结果
+            updateUI();
+            // 附加小优化: 让工具提示更友好
+            console.log("SBTI 模拟器已加载 | 备注完整: 自我模型/情感模型/态度模型/行动驱力/社交模型 全维度展示");
+        }
+
+        // 启动
+        init();
+    </script>
+</body>
+
+</html>
